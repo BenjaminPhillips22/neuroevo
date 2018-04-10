@@ -10,6 +10,6 @@ fi
 frames=20000000
 pop=100
 for i in {Frostbite,Sequest,Pong,SpaceInvaders,BemaRider}; do
-    echo CUDA_VISIBLE_DEVICES=${device_num} python run_ga_local.py --env-name "${i}Deterministic-v4" --total-frames ${frames} --population ${pop} --seed ${seed} --save-dir ./trained_models/frames${frames}_seed${seed}/ga/;
-    CUDA_VISIBLE_DEVICES=${device_num} python -W ignore run_ga_local.py --env-name "${i}Deterministic-v4" --total-frames ${frames} --population ${pop} --seed ${seed}  --save-dir ./trained_models/frames${frames}_seed${seed}/ga/;
+    echo CUDA_VISIBLE_DEVICES=${device_num} python run_ga_local.py --env-name "${i}NoFrameskip-v4" --total-frames ${frames} --population ${pop} --seed ${seed} --save-dir ./trained_models/frames${frames}_seed${seed}/ga/;
+    CUDA_VISIBLE_DEVICES=${device_num} python -W ignore run_ga_local.py --env-name "${i}NoFrameskip-v4" --total-frames ${frames} --population ${pop} --seed ${seed}  --save-dir ./trained_models/frames${frames}_seed${seed}/ga/;
 done
