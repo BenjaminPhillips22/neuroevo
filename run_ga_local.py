@@ -97,6 +97,6 @@ for it in range(args.total_frames):
     if it % args.save_interval == 0:
         best = scored_models[0][0]
         save_model(best,it=it)
-        save_population(scored_models)
+        save_population(scored_models, it=it)
 
 print('Best model saved in {}'.format( os.path.join(save_path, args.env_name+'.pt')))
