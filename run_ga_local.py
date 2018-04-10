@@ -56,6 +56,22 @@ def save_model(model, it=None):
         filename = os.path.join(save_path, args.env_name+'.pt')
     torch.save(model,filename )
 
+def save_population(pop, it=None):
+    import pickle
+    save_path = args.save_dir
+    try:
+        os.makedirs(save_path)
+    except OSError:
+        pass
+    if it:
+        filename = os.path.join(save_path, args.env_name+'_{}.pkl'.format(it))
+    else:
+        filename = os.path.join(save_path, args.env_name+'.pkl')
+
+    with open(filename,'wb') as w:
+        pickle.dump(pop, w)
+
+
 # In[ ]:
 
 viswin = None
@@ -65,7 +81,7 @@ elapsed_frames = 0
 
 
 for it in range(args.total_frames):
-    median_score, mean_score, max_score, used_frames, best = ga.evolve_iter(args.env_name,
+    median_score, mean_score, max_score, used_frames, scored_models = ga.evolve_iter(args.env_name,
             max_eval=args.max_eval)
     elapsed_frames += used_frames
     print("Gen {}  Frames {}\tmax:{:.2f}  median:{:.2f}  mean:{:.2f}\ttime:{:.4f}".format(it,
@@ -79,6 +95,8 @@ for it in range(args.total_frames):
     if elapsed_frames > args.total_frames:
         break
     if it % args.save_interval == 0:
+        best = scored_models[0][0]
         save_model(best,it=it)
+        save_population(scored_models)
 
 print('Best model saved in {}'.format( os.path.join(save_path, args.env_name+'.pt')))

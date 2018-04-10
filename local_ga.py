@@ -46,5 +46,5 @@ class GA:
                 self.models.append(copy.deepcopy(random.choice(scored_models)[0]))
                 self.models[-1].evolve(sigma)
             
-        return median_score, mean_score, max_score, used_frames, scored_models[0][0]
+        return median_score, mean_score, max_score, used_frames, scored_models
 
