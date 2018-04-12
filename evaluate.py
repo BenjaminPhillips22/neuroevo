@@ -10,19 +10,15 @@ def evaluate(env_name, model, render=False,env_seed=2018,num_stack=4,cuda=False,
         model = ga_model.uncompress_model(model)
     if cuda:
         model.cuda()
-    from baselines.common.vec_env.dummy_vec_env import DummyVecEnv
-    from baselines.common.vec_env.vec_normalize import VecNormalize
 
     from envs import make_env
     from torch.autograd import Variable
     env = make_env(env_name, env_seed, 0, None, clip_rewards=False)
-    env = DummyVecEnv([env])
+    env = env()
 
     obs_shape = env.observation_space.shape
     obs_shape = (obs_shape[0] * num_stack, *obs_shape[1:])
     current_obs = torch.zeros(1, *obs_shape)
-    states = torch.zeros(1, 512)
-    masks = torch.zeros(1, 1)
         
     def update_current_obs(obs):
         shape_dim0 = env.observation_space.shape[0]
@@ -30,7 +26,7 @@ def evaluate(env_name, model, render=False,env_seed=2018,num_stack=4,cuda=False,
         if num_stack > 1:
             current_obs[:, :-shape_dim0] = current_obs[:, shape_dim0:]
         current_obs[:, -shape_dim0:] = obs
-    render_func = env.envs[0].render
+    render_func = env.render
 
 
     if render: render_func('human')
@@ -43,10 +39,8 @@ def evaluate(env_name, model, render=False,env_seed=2018,num_stack=4,cuda=False,
         frames += 1
         with torch.no_grad():
             current_obs_var = Variable(current_obs)
-            states_var = Variable(states)
-            masks_var = Variable(masks)
         if cuda:
-            current_obs_var, states_var, masks_var = current_obs_var.cuda(), states_var.cuda(), masks_var.cuda()
+            current_obs_var = current_obs_var.cuda()
 
         current_obs_var /= 255.0
         values = model(current_obs_var)[0]
@@ -54,18 +48,13 @@ def evaluate(env_name, model, render=False,env_seed=2018,num_stack=4,cuda=False,
         obs, reward, done, _ = env.step(action)
 
 
-        total_reward += reward[0]
-        masks.fill_(0.0 if done else 1.0)
+        total_reward += reward
     
-        if current_obs.dim() == 4:
-            current_obs *= masks.unsqueeze(2).unsqueeze(2)
-        else:
-            current_obs *= masks
         update_current_obs(obs)
     
         if render: render_func('human')
         if done:
-            if _[0]['ale.lives']==0:
+            if _['ale.lives']==0:
                 break
     return total_reward, frames
 
