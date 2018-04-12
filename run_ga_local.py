@@ -36,8 +36,12 @@ args.cuda = not args.no_cuda and torch.cuda.is_available()
 args.vis = not args.no_vis
 
 
+if args.vis:
+    vis = visdom.Visdom(env=args.env_name)
+else:
+    vis = None
 
-vis = visdom.Visdom(env=args.env_name)
+
 ga = GA(args.population, cuda=args.cuda, seed=args.seed)
 
 def save_model(model, it=None):
@@ -88,15 +92,16 @@ for it in range(args.total_frames):
         elapsed_frames, max_score,median_score,mean_score,time.time()-start))
     x = np.column_stack((np.arange(it,it+1), np.arange(it,it+1), np.arange(it,it+1)))
     y = np.array([[max_score, median_score,mean_score]])
-    if viswin is None:
-        viswin = vis.line(X=x,Y=y,opts=dict(lenged=['max','median','mean']))
-    else:
-        vis.line(X=x,Y=y,win=viswin,update='append',opts=dict(lenged=['max','median','mean']))
-    if elapsed_frames > args.total_frames:
-        break
+    if vis:
+        if viswin is None:
+            viswin = vis.line(X=x,Y=y,opts=dict(title='seed{}_pop{}'.format(args.seed,args.population),lenged=['max','median','mean']))
+        else:
+            vis.line(X=x,Y=y,win=viswin,update='append',opts=dict(title='seed{}_pop{}'.format(args.seed,args.population),lenged=['max','median','mean']))
     if it % args.save_interval == 0:
         best = scored_models[0][0]
         save_model(best,it=it)
         save_population(scored_models, it=it)
+    if elapsed_frames > args.total_frames:
+        break
 
 print('Best model saved in {}'.format( os.path.join(save_path, args.env_name+'.pt')))
