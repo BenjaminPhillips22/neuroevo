@@ -1,6 +1,7 @@
 import copy
 from ga_model import *
 from utils import RandomGenerator
+from evaluate import evaluate
 
 class GA:
     def __init__(self, population, compressed_models=None, cuda=False, seed=None):
@@ -18,10 +19,10 @@ class GA:
         results = []
         for m in self.models:
             if self.rng:
-                results.append(evaluate_model(env, m, max_eval=max_eval, cuda=self.cuda,
+                results.append(evaluate(env, m, max_eval=max_eval, cuda=self.cuda,
                     env_seed=self.rng.generate()))
             else:
-                results.append(evaluate_model(env, m, max_eval=max_eval, cuda=self.cuda))
+                results.append(evaluate(env, m, max_eval=max_eval, cuda=self.cuda))
         used_frames = sum([r[1] for r in results])
         scores = [r[0] for r in results]
         scored_models = list(zip(self.models, scores))

@@ -19,8 +19,8 @@ parser.add_argument('--max-eval', type=int, default=5000,
 
 parser.add_argument('--seed', type=int, default=2018,
         help='Random seed for GA (default: 2018)')
-parser.add_argument('--env-name', default='FrostbiteDeterministic-v4',
-        help='environment to train on (default: FrostbiteDeterministic-v4)')
+parser.add_argument('--env-name', default='FrostbiteNoFrameskip-v4',
+        help='environment to train on (default: FrostbiteNoFrameskip-v4)')
 parser.add_argument('--save-interval', type=int, default=1,
         help='save interval. (default: 1)')
 parser.add_argument('--save-dir', default='./trained_models/',
