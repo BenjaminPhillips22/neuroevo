@@ -71,7 +71,7 @@ if __name__ == '__main__':
     if isinstance(origin, list):
         origin=origin[0]
     origin.cuda()
-    result, frames = evaluate_model(env_name, origin, seed=2018,cuda=True, max_eval=5000)
+    result, frames = evaluate(env_name, origin, seed=2018,cuda=True, max_eval=5000)
     print(result,frames)
     
 
