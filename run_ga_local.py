@@ -21,7 +21,7 @@ parser.add_argument('--seed', type=int, default=2018,
         help='Random seed for GA (default: 2018)')
 parser.add_argument('--env-name', default='FrostbiteNoFrameskip-v4',
         help='environment to train on (default: FrostbiteNoFrameskip-v4)')
-parser.add_argument('--save-interval', type=int, default=1,
+parser.add_argument('--save-interval', type=int, default=3,
         help='save interval. (default: 1)')
 parser.add_argument('--save-dir', default='./trained_models/',
         help='directory to save agent logs (default: ./trained_models/)')
@@ -98,8 +98,8 @@ for it in range(args.total_frames):
         else:
             vis.line(X=x,Y=y,win=viswin,update='append',opts=dict(title='seed{}_pop{}'.format(args.seed,args.population),lenged=['max','median','mean']))
     if it % args.save_interval == 0:
-        best = scored_models[0][0]
-        save_model(best,it=it)
+        #best = scored_models[0][0]
+        #save_model(best,it=it)
         save_population(scored_models, it=it)
     if elapsed_frames > args.total_frames:
         break

@@ -39,12 +39,12 @@ def evaluate(env_name, model, render=False,env_seed=2018,num_stack=4,cuda=False,
         frames += 1
         with torch.no_grad():
             current_obs_var = Variable(current_obs)
-        if cuda:
-            current_obs_var = current_obs_var.cuda()
+            if cuda:
+                current_obs_var = current_obs_var.cuda()
 
-        current_obs_var /= 255.0
-        values = model(current_obs_var)[0]
-        action = [np.argmax(values.cpu().data.numpy()[:env.action_space.n])]
+            current_obs_var /= 255.0
+            values = model(current_obs_var)[0]
+            action = [np.argmax(values.cpu().data.numpy()[:env.action_space.n])]
         obs, reward, done, _ = env.step(action)
 
 
@@ -63,15 +63,20 @@ if __name__ == '__main__':
     import torch
     import torch.nn as nn
     #GA model
-    model_path = '/home/leesy714/source/nn_landscape/trained_models/frames20000000_seed0/ga/FrostbiteNoFrameskip-v4_19.pt'
+    model_path = './trained_models/frames5000000_seed1/ga/FrostbiteNoFrameskip-v4.pkl'
+    import pickle
+    pop = pickle.load(open(model_path,'rb'))
     seed = model_path[model_path.rfind('seed')+4:]
     seed = int(seed[:seed.find('/')])
     env_name = 'FrostbiteNoFrameskip-v4'
-    origin = torch.load(model_path)
+    print(pop[0])
+    origin = ga_model.uncompress_model(pop[0][0])
     if isinstance(origin, list):
         origin=origin[0]
     origin.cuda()
-    result, frames = evaluate(env_name, origin, seed=2018,cuda=True, max_eval=5000)
-    print(result,frames)
+    import time
+    start = time.time()
+    result, frames = evaluate(env_name, origin, env_seed=2018,cuda=True, max_eval=5000)
+    print(result,frames, time.time()-start)
     
 

@@ -4,9 +4,10 @@ from utils import RandomGenerator
 from evaluate import evaluate
 
 class GA:
-    def __init__(self, population, compressed_models=None, cuda=False, seed=None):
+    def __init__(self, population, compressed_models=None, cuda=False, seed=None, env_seed=2018):
         self.population = population
         self.cuda=cuda
+        self.env_seed=env_seed
         if seed is not None:
             self.rng = RandomGenerator(rng=seed)
         if self.rng:
@@ -20,7 +21,7 @@ class GA:
         for m in self.models:
             if self.rng:
                 results.append(evaluate(env, m, max_eval=max_eval, cuda=self.cuda,
-                    env_seed=self.rng.generate()))
+                    env_seed=self.env_seed))
             else:
                 results.append(evaluate(env, m, max_eval=max_eval, cuda=self.cuda))
         used_frames = sum([r[1] for r in results])
@@ -35,16 +36,16 @@ class GA:
         median_score = np.median(scores)
         mean_score = np.mean(scores)
         max_score = scored_models[0][1]
-        scored_models = scored_models[:truncation]
+        scored_models_tr = scored_models[:truncation]
         
         # Elitism
-        self.models = [scored_models[0][0]]
+        self.models = [scored_models_tr[0][0]]
         for _ in range(self.population - 1):
             if self.rng:
-                self.models.append(copy.deepcopy(self.rng.choice(scored_models)[0]))
+                self.models.append(copy.deepcopy(self.rng.choice(scored_models_tr)[0]))
                 self.models[-1].evolve(sigma, self.rng.generate())
             else:
-                self.models.append(copy.deepcopy(random.choice(scored_models)[0]))
+                self.models.append(copy.deepcopy(random.choice(scored_models_tr)[0]))
                 self.models[-1].evolve(sigma)
             
         return median_score, mean_score, max_score, used_frames, scored_models
