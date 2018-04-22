@@ -36,20 +36,18 @@ class GA:
             results.append(evaluate(env, m, max_eval=max_eval, cuda=self.cuda,
                 env_seed=self.env_seed))
         '''
-        results = [None] * self.population
-        ins_per_th = self.population // num_worker if self.population % num_worker == 0 else self.population//num_worker+1
-        threads = []
-        for tid in range(num_worker):
-            i_start = tid * ins_per_th
-            i_end = (tid+1) * ins_per_th
+        results = np.array([])
+        rep = self.population // num_worker if self.population % num_worker == 0 else self.population//num_worker+1
+        used_frames = 0
+        for tid in range(rep):
+            i_start = tid * num_worker
+            i_end = (tid+1) * num_worker
             i_end = i_end if i_end < self.population else self.population
-            threads.append(workerThread(tid, (env, self.models, max_eval, self.cuda, self.env_seed, range(i_start,i_end), results)))
-            threads[tid].start()
-        for th in threads:
-            th.join()
-    
-        used_frames = sum([r[1] for r in results])
-        scores = [r[0] for r in results]
+            result,frames = evaluate(env, self.models[i_start:i_end], max_eval=max_eval, cuda=self.cuda, env_seed=self.env_seed)
+            results = np.concatenate((results, result))
+            used_frames += frames 
+
+        scores = results
         scored_models = list(zip(self.models, scores))
         scored_models.sort(key=lambda x: x[1], reverse=True)
         return scored_models, used_frames
